@@ -6,7 +6,6 @@ using namespace std;
 
 #include<cstdlib>
 
-Image merge(string name1);
 Image filter_reverse_color(string name);
 Image filter_gray(string name);
 Image filter_balck_and_white(string name);
@@ -74,14 +73,13 @@ void to_show_new_image(Image img){
 void editing(){
     string image_name;
     cout << "\n Enter the full path of the image file:";
-    cin>>image_name;
+    getline(cin , image_name);
     
     int op;
     cout << "\n Available Filters:\n";
     cout << "\t1 - Grayscale\n";
     cout << "\t2 - Black & White\n";
     cout << "\t3 - Reverse Colors\n";
-    cout << "\t4 - merge 2 image\n";
     cout << "Please choose a filter (1, 2, 3, 4, 5, ...): ";
     cin>>op;
     switch (op){
@@ -145,33 +143,19 @@ Image merge(string name1){
     cout<<"enter the name for image 2:";
     cin>>name2;
     try{
-        img1.loadNewImage(name1);
-        img2.loadNewImage(name2);
-        
+        img1.loadImage(name1);
+        img2.loadImage(name2);
     }catch(...){
         cout<<"file not found"<<endl;
-    }
-    int a1=img1.width*img1.height;
-    int a2=img2.width*img2.height;
-    if(a1>a2){
-        for(int w=0;w<img2.width;w++){
-        for(int h=0;h<img2.height;h++){
-            for(int i=0;i<3;i++){
-                img1(w,h,i) = (img1(w,h,i) + img2(w,h,i)) / 2;
-            }
-        }
-    }
-    return img1;
-
     }
     for(int w=0;w<img1.width;w++){
         for(int h=0;h<img1.height;h++){
             for(int i=0;i<3;i++){
-                img2(w,h,i) = (img1(w,h,i) + img2(w,h,i)) / 2;
+                img1(w,h,i)+=img1(w,h,i)
             }
         }
     }
-    return img2;
+    return img1;
     
 }
 
