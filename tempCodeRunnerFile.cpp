@@ -143,15 +143,15 @@ Image merge(string name1){
     cout<<"enter the name for image 2:";
     cin>>name2;
     try{
-        img1.loadImage(name1);
-        img2.loadImage(name2);
+        img1.loadNewImage(name1);
+        img2.loadNewImage(name2);
     }catch(...){
         cout<<"file not found"<<endl;
     }
     for(int w=0;w<img1.width;w++){
         for(int h=0;h<img1.height;h++){
             for(int i=0;i<3;i++){
-                img1(w,h,i)+=img1(w,h,i)
+                img1(w,h,i)+=img1(w,h,i);
             }
         }
     }
