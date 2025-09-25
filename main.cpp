@@ -2,6 +2,7 @@
 using namespace std;
 #include <string>
 #include "Image_Class.h"
+#include<bits/stdc++.h>
 
 
 #include<cstdlib>
@@ -10,6 +11,8 @@ Image merge(string name1);
 Image filter_reverse_color(string name);
 Image filter_gray(string name);
 Image filter_balck_and_white(string name);
+Image filter_rotate_170_90(string name) ;
+Image filter_flip(string name);
 void menu();
 void editing();
 
@@ -54,7 +57,11 @@ void to_show_new_image(Image img){
         bool saved=img.saveImage(newImage);
         if(saved){
             string com="start "+newImage;
-        system(com.c_str());
+            cout<<"file saved:are you want show the image?{Y , N}\n";
+            char choise;
+            cin>>choise;
+            if (choise=='Y'|| choise=='y')system(com.c_str());
+
         }else{
             cout<<"Failed to save image.\n";
         }
@@ -69,6 +76,40 @@ void to_show_new_image(Image img){
 
 }
 
+Image flipVert(Image &img) {
+    int width = img.width;
+    int height = img.height;
+
+    for (int y = 0; y < height / 2; y++) {
+        for (int x = 0; x < width; x++) {
+            for (int c = 0; c < img.channels; c++) {
+                unsigned char top = img(x, y, c);
+                unsigned char bottom = img(x, height - 1 - y, c);
+                img(x, y, c) = bottom;
+                img(x, height - 1 - y, c) = top;
+            }
+        }
+    }
+    return img;
+}
+Image flipHorz(Image &img) { //el ta3deel bykon fel l sora l asleya
+    int width = img.width;
+    int height = img.height;
+
+    for (int y = 0; y < height; y++) {                                    // nemshy 3la kol saf
+        for (int x = 0; x < width / 2; x++) {                             // ne2leb nos l 3amod
+            for (int c = 0; c < img.channels; c++) {                      // 3shan me4 bnkon 3arfeen no3 l sora
+                unsigned char left = img(x, y, c);
+                unsigned char right = img(width - 1 - x, y, c);          //l 3amod l a5eer - l 3amod l 7aly
+                img(x, y, c) = right;                                    //badelna l pixel ely 3la l shemal lel yemen
+                img(width - 1 - x, y, c) = left;// el3aks
+            }
+        }
+    }
+    return img;
+}
+
+
 
 
 void editing(){
@@ -82,6 +123,8 @@ void editing(){
     cout << "\t2 - Black & White\n";
     cout << "\t3 - Reverse Colors\n";
     cout << "\t4 - merge 2 image\n";
+    cout << "\t5 - Flip Image\n";
+    cout<<"\t6-rotate 90 or 270 degrees\n";
     cout << "Please choose a filter (1, 2, 3, 4, 5, ...): ";
     cin>>op;
     switch (op){
@@ -97,6 +140,11 @@ void editing(){
     case 4:
         to_show_new_image(merge(image_name));
         break; 
+    case 5:
+        to_show_new_image(filter_flip(image_name));
+        break;
+    case 6:
+        to_show_new_image(filter_rotate_170_90(image_name));
     default:
             cout << " Invalid option.\n";   
     
@@ -249,6 +297,65 @@ Image filter_reverse_color(string name){
         }
     }
     return img;
+}
+
+Image filter_flip(string name){
+    Image img(name);
+    int choice;
+    cout << "Choose flip option:\n";
+    cout << "1. Flip Horizontally\n";
+    cout << "2. Flip Vertically\n";
+    cout << "3. Flip Both\n";
+    cin >> choice;
+    if (choice == 1) {
+        return flipHorz(img);
+    }
+    else if (choice == 2) {
+        return flipVert(img);
+    }
+    else if (choice == 3) {
+        flipHorz(img);
+        flipVert(img);
+        return img;
+    }
+    else {
+        cout << "Invalid choice.\n";
+        return img;
+    }
+
+
+}
+
+Image filter_rotate_170_90(string name) {
+    //المفروض هنمشي على عمود عمود نخليه صف عشان نشقلبها
+    int angle;
+    Image img(name);
+    cout << "Enter rotation angle (90 or 270 or 180 degrees): ";
+    cin >> angle;
+
+    if (angle != 90 && angle != 270 &&angle!=180) {
+        cout << "Only 90 or 270 or 180degrees are supported.\n";
+        return img;
+    }
+    if (angle==180) {
+        return flipVert(img);
+    }
+    int newWidth=img.height;
+    int newHeight=img.width;
+    Image newImage(newWidth,newHeight);//انشاء صوره بابعاد مقلوبه
+    for (int h = 0; h < img.height; h++) {
+        for (int w = 0; w < img.width; w++) {
+            for (int i = 0; i < 3; i++) {
+                if (angle == 90) {
+                    newImage(img.height - 1 - h, w, i) = img(w, h, i);
+                } else if (angle == 270) {
+                    newImage(h, img.width - 1 - w, i) = img(w, h, i);
+                }
+            }
+        }
+    }
+
+    return newImage;
 }
 
 
