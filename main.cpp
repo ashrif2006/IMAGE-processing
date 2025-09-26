@@ -13,41 +13,51 @@ Image filter_gray(string name);
 Image filter_balck_and_white(string name);
 Image filter_rotate_170_90(string name) ;
 Image filter_flip(string name);
+Image resize(Image &img,int width,int height);
 void menu();
 void editing();
 
-void to_show_new_image(Image img){
+void to_show_new_image(Image img,string realName){
     string name;
-    int op;
-    cout<<"";
-    cout << "\n Enter a name to save the edited image (without extension): ";
-    cin>>name;
-    cout << "\nChoose a file format to save the image:\n";
-    cout << "\t1 - .jpeg\n";
-    cout << "\t2 - .jpg\n";
-    cout << "\t3 - .png\n";
-    cout << "\t4 - .bmp\n";
-    cout << "Enter your choice (1-4): ";
-    cin>>op;
     string newImage;
-    switch (op)
-    {
-    case 1:
-        newImage=name+".jpeg";
-        break;
-    case 2:
-        newImage=name+".jpg";
-        break;
-    case 3:
-        newImage=name+".png";
-        break;
-    case 4:
-        newImage=name+".bmp";
-        break;
-    
-    default:
-        cout << "Invalid choice. Defaulting to .jpg\n";
+    int op;
+    cout<<"Dou you wnat to save image in the real name? {Y , N}";
+    char oop;
+    cin>>oop;
+    if(oop=='y'||oop=='Y'){
+        newImage=realName;
     }
+    else if(oop=='N' || oop=='n'){
+        cout << "\n Enter a name to save the edited image (without extension): ";
+        cin>>name;
+        cout << "\nChoose a file format to save the image:\n";
+        cout << "\t1 - .jpeg\n";
+        cout << "\t2 - .jpg\n";
+        cout << "\t3 - .png\n";
+        cout << "\t4 - .bmp\n";
+        cout << "Enter your choice (1-4): ";
+        cin>>op;
+        switch (op)
+        {
+        case 1:
+            newImage=name+".jpeg";
+            break;
+        case 2:
+            newImage=name+".jpg";
+            break;
+        case 3:
+            newImage=name+".png";
+            break;
+        case 4:
+            newImage=name+".bmp";
+            break;
+        
+        default:
+            cout << "Invalid choice. Defaulting to .jpg\n";
+            newImage=name+".jpeg";
+        }
+    }
+
 
     char o;
     cout << "\n Do you want to save the edited image? (Y/N): ";
@@ -57,7 +67,8 @@ void to_show_new_image(Image img){
         bool saved=img.saveImage(newImage);
         if(saved){
             string com="start "+newImage;
-            cout<<"file saved:are you want show the image?{Y , N}\n";
+            cout<<"file saved succ\n";
+            cout<<"Do  you want to show the image?{Y , N}\n";
             char choise;
             cin>>choise;
             if (choise=='Y'|| choise=='y')system(com.c_str());
@@ -129,22 +140,22 @@ void editing(){
     cin>>op;
     switch (op){
     case 1:
-        to_show_new_image(filter_gray(image_name));
+        to_show_new_image(filter_gray(image_name),image_name);
         break;
     case 2:
-        to_show_new_image(filter_balck_and_white(image_name));
+        to_show_new_image(filter_balck_and_white(image_name),image_name);
         break; 
     case 3:
-        to_show_new_image(filter_reverse_color(image_name));
+        to_show_new_image(filter_reverse_color(image_name),image_name);
         break; 
     case 4:
-        to_show_new_image(merge(image_name));
+        to_show_new_image(merge(image_name),image_name);
         break; 
     case 5:
-        to_show_new_image(filter_flip(image_name));
+        to_show_new_image(filter_flip(image_name),image_name);
         break;
     case 6:
-        to_show_new_image(filter_rotate_170_90(image_name));
+        to_show_new_image(filter_rotate_170_90(image_name),image_name);
     default:
             cout << " Invalid option.\n";   
     
@@ -186,6 +197,23 @@ void menu(){
 
 }
 
+Image resize(Image &img,int newWidth,int newHeight) {
+    Image newImage(newWidth,newHeight);
+    float scaleX=(float)img.width/newWidth;
+    float scaleY=(float)img.height/newHeight;
+
+    for (int y = 0; y < newHeight; y++) {
+        for (int x = 0; x < newWidth; x++) {
+            int xImg=x*scaleX;
+            int yImg=y*scaleY;
+            for (int i=0;i<3;i++) {
+                newImage(x,y,i)=img(xImg,yImg,i);
+            }
+        }
+    }
+    return newImage;
+}
+
 Image merge(string name1){
     Image img1;
     Image img2;
@@ -199,27 +227,19 @@ Image merge(string name1){
     }catch(...){
         cout<<"file not found"<<endl;
     }
-    int a1=img1.width*img1.height;
-    int a2=img2.width*img2.height;
-    if(a1>a2){
-        for(int w=0;w<img2.width;w++){
-        for(int h=0;h<img2.height;h++){
-            for(int i=0;i<3;i++){
-                img1(w,h,i) = (img1(w,h,i) + img2(w,h,i)) / 2;
+
+    int maxWidth=max(img1.width,img2.width);
+    int maxHeight=max(img1.height,img2.height);
+    img1=resize(img1,maxWidth,maxHeight);
+    img2=resize(img2,maxWidth,maxHeight);
+    for (int y = 0; y < img1.height; y++) {
+        for (int x = 0; x < img1.width; x++) {
+            for (int c = 0; c <3; c++) {
+                img1(x,y,c)=(img1(x,y,c)+img2(x,y,c))/2;
             }
         }
     }
     return img1;
-
-    }
-    for(int w=0;w<img1.width;w++){
-        for(int h=0;h<img1.height;h++){
-            for(int i=0;i<3;i++){
-                img2(w,h,i) = (img1(w,h,i) + img2(w,h,i)) / 2;
-            }
-        }
-    }
-    return img2;
     
 }
 
@@ -338,18 +358,20 @@ Image filter_rotate_170_90(string name) {
         return img;
     }
     if (angle==180) {
-        return flipVert(img);
+        flipVert(img);
+        flipHorz(img);
+        return img;
     }
     int newWidth=img.height;
     int newHeight=img.width;
     Image newImage(newWidth,newHeight);//انشاء صوره بابعاد مقلوبه
-    for (int h = 0; h < img.height; h++) {
-        for (int w = 0; w < img.width; w++) {
+    for (int x= 0; x < img.height; x++) {
+        for (int y = 0; y < img.width; y++) {
             for (int i = 0; i < 3; i++) {
                 if (angle == 90) {
-                    newImage(img.height - 1 - h, w, i) = img(w, h, i);
+                    newImage(img.height - 1 - x, y, i) = img(y, x, i);
                 } else if (angle == 270) {
-                    newImage(h, img.width - 1 - w, i) = img(w, h, i);
+                    newImage(x, img.width - 1 - y, i) = img(y, x, i);
                 }
             }
         }
